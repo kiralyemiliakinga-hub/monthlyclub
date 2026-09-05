@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Club - Animation Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Cinzel:wght@700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* BASE THEME (DEFAULT) */
+        :root {
+            --bg: #0f1015;
+            --card: #181a20;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #8a2be2;
+            --primary-hover: #9d3bf0;
+            --gold: #f59e0b;
+            --text: #f3f4f6;
+            --text-dim: #9ca3af;
+            --green: #22c55e;
+            --danger: #dc2626;
+            --font-main: 'Inter', sans-serif;
+            --header-bg: #181a20;
+        }
+
+        /* THEME 1: TIME TRAVEL (Vintage / Sepia / Medieval Paper) */
+        body.theme-event-1 {
+            --bg: #1c1917;
+            --card: #292524;
+            --border: #78350f;
+            --primary: #d97706;
+            --primary-hover: #f59e0b;
+            --gold: #f59e0b;
+            --text: #fef3c7;
+            --text-dim: #d6d3d1;
+            --font-main: 'Cinzel', serif;
+            --header-bg: #451a03;
+        }
+
+        /* THEME 2: TALENTED ENOUGH? (Gold / Hollywood VIP Studio) */
+        body.theme-event-2 {
+            --bg: #09090b;
+            --card: #18181b;
+            --border: #eab308;
+            --primary: #eab308;
+            --primary-hover: #fde047;
+            --gold: #facc15;
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+            --font-main: 'Inter', sans-serif;
+            --header-bg: #27272a;
+        }
+
+        /* THEME 3: LESS IS MORE (Cyber Minimalist / High Contrast Dark Blue) */
+        body.theme-event-3 {
+            --bg: #020617;
+            --card: #0f172a;
+            --border: #38bdf8;
+            --primary: #0284c7;
+            --primary-hover: #38bdf8;
+            --gold: #38bdf8;
+            --text: #f0f9ff;
+            --text-dim: #94a3b8;
+            --font-main: 'Space Mono', monospace;
+            --header-bg: #0369a1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER & NAV */
+        header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .logo span { color: var(--primary); }
+
+        nav {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.4rem 0.7rem;
+            border-radius: 6px;
+        }
+
+        nav button:hover, nav button.active {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .user-pill {
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .admin-badge {
+            background: var(--gold);
+            color: #000;
+            font-weight: 900;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        /* LAYOUT */
+        main {
+            max-width: 900px;
+            margin: 1.8rem auto;
+            padding: 0 1.2rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.4rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+
+        .hero-card {
+            border-left: 4px solid var(--primary);
+        }
+
+        .admin-card {
+            border: 1px solid var(--gold);
+            background: rgba(245, 158, 11, 0.03);
+        }
+
+        h1 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+        h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
+        p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        /* BUTTONS & INPUTS */
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover { background: rgba(255, 255, 255, 0.05); }
+
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { opacity: 0.9; }
+
+        .btn-success { background: var(--green); color: #000; }
+        .btn-success:hover { opacity: 0.9; }
+
+        input[type="file"] { display: none; }
+
+        /* BADGES & TAGS */
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .badge.unlocked {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .badge.locked { opacity: 0.35; }
+
+        .tag-technique {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.4rem;
+        }
+
+        .event-status {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .event-status.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+
+        .event-status.inactive {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+        }
+
+        /* RATING STARS */
+        .star-rating {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 0.6rem;
+            cursor: pointer;
+        }
+
+        .star {
+            font-size: 1.3rem;
+            color: var(--text-dim);
+        }
+
+        .star.active, .star:hover { color: var(--gold); }
+
+        /* LEADERBOARD TABLE */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-table th {
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        /* FLOATING SECRET TRIGGER */
+        .secret-trigger {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .secret-trigger:hover { transform: scale(1.1); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 1.8rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 440px;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        audio, video {
+            width: 100%;
+            margin-top: 0.8rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-container">
+            <div class="logo">Monthly<span>Club</span></div>
+            <nav>
+                <button class="active" onclick="switchTab('challenge', this)">Challenge</button>
+                <button onclick="switchTab('vote', this)">Voting</button>
+                <button onclick="switchTab('events', this)">Events</button>
+                <button onclick="switchTab('vault', this)">Vault</button>
+                <button onclick="switchTab('profile', this)">Profile</button>
+            </nav>
+            <div class="user-section">
+                <div class="user-pill">
+                    <span id="user-display-name">Guest</span>
+                    <span id="admin-badge" class="admin-badge" style="display:none;">ADMIN</span>
+                </div>
+                <button id="btn-user-action" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="openAuthModal()">Login / Register</button>
+                <button id="btn-logout-admin" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; border-color: var(--gold); color: var(--gold); display:none;" onclick="logoutAdmin()">🚪 Exit Admin Mode</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main>
+
+        <!-- TAB 1: CHALLENGE -->
+        <div id="tab-challenge" class="tab-content active">
+            <div class="card hero-card">
+                <h1 id="challenge-title">The Neighbor's Dog</h1>
+                <p id="challenge-desc">Animate Phoebe Buffay's iconic monologue. Focus on mechanics, lip-sync, and expressive body language!</p>
+
+                <!-- Audio Asset -->
+                <div style="margin-top: 1rem;">
+                    <p style="font-size: 0.8rem; color: var(--text-dim);">🎧 Monthly Audio Track:</p>
+                    <audio id="monthly-audio" controls></audio>
+                </div>
+
+                <!-- Admin Upload Controls -->
+                <div id="admin-challenge-controls" style="display:none; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                        <p style="font-size: 0.8rem; color: var(--gold); font-weight: bold;">👑 Admin Controls (Király Zsolt)</p>
+                        <button class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; border-color: var(--gold); color: var(--gold);" onclick="logoutAdmin()">🚪 Switch to User View</button>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn btn-outline" onclick="openNewTrackModal()">🎵 New Audio & Info</button>
+                        <label class="btn btn-outline">
+                            📦 Starter Kit (.zip)
+                            <input type="file" accept=".zip" onchange="handleKitUpload(this)">
+                        </label>
+                        <label class="btn btn-outline">
+                            📄 Guide (.pdf)
+                            <input type="file" accept=".pdf" onchange="handlePdfUpload(this)">
+                        </label>
+                    </div>
+
+                    <button class="btn btn-danger" style="margin-top: 0.8rem;" onclick="resetEntirePlatform()">💣 Reset Entire Platform (Keep Vault)</button>
+                </div>
+
+                <!-- Downloads -->
+                <div style="margin-top: 1.2rem; display: flex; gap: 0.6rem;" id="download-links">
+                    <a id="btn-download-kit" class="btn btn-outline" style="display:none;" download="StarterKit.zip">📥 Download Starter Kit (.ZIP)</a>
+                    <a id="btn-download-pdf" class="btn btn-outline" style="display:none;" download="Guide.pdf" target="_blank">📄 Open Guide (.PDF)</a>
+                </div>
+            </div>
+
+            <!-- Submission Box -->
+            <div class="card">
+                <h2>Submit Your Animation (.mp4)</h2>
+                <p>Upload your finished animation and share your technique details.</p>
+
+                <button class="btn" style="margin-top: 0.8rem;" onclick="openSubmitModal()">
+                    🎬 Submit Animation
+                </button>
+
+                <div style="margin-top: 1.5rem;">
+                    <h3>Community Submissions</h3>
+                    <div id="video-entries" class="grid" style="margin-top: 0.8rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: VOTING -->
+        <div id="tab-vote" class="tab-content">
+            <!-- ADMIN ONLY LEADERBOARD BOX -->
+            <div id="admin-leaderboard-card" class="card admin-card" style="display:none;">
+                <h2 style="color: var(--gold);">👑 Admin Live Results / Leaderboard</h2>
+                <p>Private vote standings calculated automatically. Only visible to Admin.</p>
+
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Animation Title</th>
+                            <th>Creator</th>
+                            <th>Technique</th>
+                            <th>Avg Rating</th>
+                            <th>Votes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>Rate This Month's Animations</h2>
+                <p>Watch submissions from fellow animators and rate them from 1 to 5 stars!</p>
+            </div>
+
+            <div id="voting-grid" class="grid"></div>
+        </div>
+
+        <!-- TAB 3: EVENTS -->
+        <div id="tab-events" class="tab-content">
+            <div class="card">
+                <h2>Special Events</h2>
+                <p>Activating an event changes the entire site's theme and visual style!</p>
+            </div>
+
+            <div class="grid">
+                <!-- Event 1 -->
+                <div class="card">
+                    <h3>🕰️ Time Travel</h3>
+                    <p>Surprise pop-up event! Historical era focus with a special vintage theme.</p>
+                    <p style="font-size: 0.8rem; color: var(--gold); margin-top: 0.5rem;">Badges: [Be Alert!] • [Historian!]</p>
+                    <div>
+                        <span id="status-event-1" class="event-status inactive">Inactive</span>
+                    </div>
+                    <div class="admin-only-control" style="display:none; margin-top: 0.8rem;">
+                        <button id="btn-event-1" class="btn btn-success" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="toggleEvent(1)">⚡ Toggle Event</button>
+                    </div>
+                </div>
+
+                <!-- Event 2 -->
+                <div class="card">
+                    <h3>👑 Talented Enough?</h3>
+                    <p>Every May. Hardcore studio test. Exclusive Gold Hollywood VIP theme.</p>
+                    <p style="font-size: 0.8rem; color: var(--gold); margin-top: 0.5rem;">Badges: [Tested!] • [Born Talent!]</p>
+                    <div>
+                        <span id="status-event-2" class="event-status inactive">Inactive</span>
+                    </div>
+                    <div class="admin-only-control" style="display:none; margin-top: 0.8rem;">
+                        <button id="btn-event-2" class="btn btn-success" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="toggleEvent(2)">⚡ Toggle Event</button>
+                    </div>
+                </div>
+
+                <!-- Event 3 -->
+                <div class="card">
+                    <h3>🧘 Less is Sometimes More</h3>
+                    <p>Every November. Multi-layered audio focus. Cyber Minimalist theme.</p>
+                    <p style="font-size: 0.8rem; color: var(--gold); margin-top: 0.5rem;">Badges: [Good Hearing!] • [So Close!] • [Puppet Master!]</p>
+                    <div>
+                        <span id="status-event-3" class="event-status inactive">Inactive</span>
+                    </div>
+                    <div class="admin-only-control" style="display:none; margin-top: 0.8rem;">
+                        <button id="btn-event-3" class="btn btn-success" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="toggleEvent(3)">⚡ Toggle Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: PERMANENT VAULT -->
+        <div id="tab-vault" class="tab-content">
+            <div class="card">
+                <h2>The Vault (Permanent)</h2>
+                <p>Assets saved here are <strong>never erased</strong> during monthly challenge resets.</p>
+
+                <div id="admin-vault-controls" style="display:none; margin-top: 0.8rem;">
+                    <label class="btn btn-outline">
+                        📂 Add File to Vault (.zip / .mp4)
+                        <input type="file" onchange="handleVaultUpload(this)">
+                    </label>
+                </div>
+            </div>
+
+            <div id="vault-items" class="grid"></div>
+        </div>
+
+        <!-- TAB 5: PROFILE -->
+        <div id="tab-profile" class="tab-content">
+            <div class="card">
+                <h2 id="profile-name">Guest User</h2>
+                <p>Member of Monthly Club</p>
+
+                <h3 style="margin-top: 1.2rem;">Your Badges</h3>
+                <div class="badge-list">
+                    <div class="badge unlocked">🚨 Be Alert!</div>
+                    <div class="badge unlocked">📜 Historian!</div>
+                    <div class="badge unlocked">🎭 Puppet Master!</div>
+                    <div class="badge locked">👑 Born Talent!</div>
+                    <div class="badge locked">🎯 Tested!</div>
+                    <div class="badge locked">👂 Good Hearing!</div>
+                    <div class="badge locked">🥈 So Close!</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FLOATING SECRET ADMIN BUTTON -->
+    <div class="secret-trigger" onclick="openAdminModal()" title="Admin Login">👑</div>
+
+    <!-- USER REGISTRATION / LOGIN MODAL -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>User Account</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem;">Enter your display name to submit animations.</p>
+
+            <div class="form-group">
+                <label>Your Name / Username</label>
+                <input type="text" id="user-input-name" placeholder="e.g. Alex_Anim">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-outline" onclick="closeAuthModal()">Cancel</button>
+                <button class="btn" onclick="saveUserAccount()">Save Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN VERIFICATION MODAL -->
+    <div id="admin-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Admin Login</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem;">Enter founder credentials for full admin rights.</p>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="admin-input-name" placeholder="Király Zsolt">
+            </div>
+
+            <div class="form-group">
+                <label>Admin Passkey</label>
+                <input type="password" id="admin-input-passkey" placeholder="••••••••">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-outline" onclick="closeAdminModal()">Cancel</button>
+                <button class="btn" onclick="verifyAdmin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW AUDIO & INFO MODAL (ADMIN) -->
+    <div id="track-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Upload New Track & Info</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem;">Set the name, description, and audio file for this month.</p>
+
+            <div class="form-group">
+                <label>Challenge Title</label>
+                <input type="text" id="new-track-title" placeholder="e.g. Phoebe's Monologue">
+            </div>
+
+            <div class="form-group">
+                <label>Challenge Description</label>
+                <textarea id="new-track-desc" rows="3" placeholder="Describe what the animators should focus on..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Select Audio File (.wav / .mp3)</label>
+                <input type="file" id="new-track-file" accept="audio/*" style="display:block;">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-outline" onclick="closeNewTrackModal()">Cancel</button>
+                <button class="btn" onclick="saveNewTrack()">Update Challenge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANIMATION SUBMISSION MODAL -->
+    <div id="submit-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Submit Animation</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem;">Provide details about your animation work.</p>
+
+            <div class="form-group">
+                <label>Animation Title</label>
+                <input type="text" id="sub-title" placeholder="e.g. Crazy Dog Scene">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="sub-desc" rows="2" placeholder="Tell us about your process, software used..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Animation Technique</label>
+                <select id="sub-technique">
+                    <option value="2D Animation">2D Animation</option>
+                    <option value="3D Animation">3D Animation</option>
+                    <option value="Stop Motion">Stop Motion</option>
+                    <option value="Frame-by-Frame / Paper">Frame-by-Frame / Paper</option>
+                    <option value="Cut-out Animation">Cut-out Animation</option>
+                    <option value="Hybrid / Mixed">Hybrid / Mixed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Select .MP4 Video File</label>
+                <input type="file" id="sub-file" accept="video/mp4" style="display:block;">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+                <button class="btn btn-outline" onclick="closeSubmitModal()">Cancel</button>
+                <button class="btn" onclick="processUserSubmission()">Submit Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentUser = {
+            name: localStorage.getItem('mc_username') || 'Guest User',
+            isAdmin: localStorage.getItem('mc_is_admin') === 'true'
+        };
+
+        let submissions = JSON.parse(localStorage.getItem('mc_submissions') || '[]');
+        let vaultItems = JSON.parse(localStorage.getItem('mc_vault') || '[]');
+        let activeEvents = JSON.parse(localStorage.getItem('mc_active_events') || '{}');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAutomaticMonthlyReset();
+            updateUserUI();
+            renderSubmissions();
+            renderVotingTab();
+            renderVault();
+            loadSavedChallengeAssets();
+            updateEventsUI();
+        });
+
+        // AUTOMATIC MONTHLY RESET ON 1ST OF EACH MONTH
+        function checkAutomaticMonthlyReset() {
+            const today = new Date();
+            const currentMonthKey = `${today.getFullYear()}-${today.getMonth() + 1}`;
+            const lastResetMonth = localStorage.getItem('mc_last_reset_month');
+
+            if (lastResetMonth !== currentMonthKey) {
+                executePlatformReset();
+                localStorage.setItem('mc_last_reset_month', currentMonthKey);
+            }
+        }
+
+        function executePlatformReset() {
+            localStorage.removeItem('mc_audio_data');
+            localStorage.removeItem('mc_kit_data');
+            localStorage.removeItem('mc_pdf_data');
+            localStorage.removeItem('mc_submissions');
+            localStorage.removeItem('mc_challenge_title');
+            localStorage.removeItem('mc_challenge_desc');
+
+            submissions = [];
+            const audio = document.getElementById('monthly-audio');
+            if (audio) audio.src = '';
+            
+            const title = document.getElementById('challenge-title');
+            if (title) title.innerText = 'The Neighbor\'s Dog';
+            
+            const desc = document.getElementById('challenge-desc');
+            if (desc) desc.innerText = 'Animate Phoebe Buffay\'s iconic monologue.';
+            
+            const kit = document.getElementById('btn-download-kit');
+            if (kit) kit.style.display = 'none';
+            
+            const pdf = document.getElementById('btn-download-pdf');
+            if (pdf) pdf.style.display = 'none';
+        }
+
+        function resetEntirePlatform() {
+            if (confirm('💣 Reset Entire Platform? This will wipe all monthly entries, voting results, audio files, and starter packs. THE VAULT WILL BE KEPT SAFE.')) {
+                executePlatformReset();
+                renderSubmissions();
+                renderVotingTab();
+                alert('Platform reset completed! Ready for the new month.');
+            }
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            btn.classList.add('active');
+
+            if (tabId === 'vote') {
+                renderVotingTab();
+            }
+        }
+
+        function updateUserUI() {
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('profile-name').innerText = currentUser.name;
+
+            const adminBadge = document.getElementById('admin-badge');
+            const adminControls = document.getElementById('admin-challenge-controls');
+            const vaultControls = document.getElementById('admin-vault-controls');
+            const btnUserAction = document.getElementById('btn-user-action');
+            const btnLogoutAdmin = document.getElementById('btn-logout-admin');
+            const adminControlsOnly = document.querySelectorAll('.admin-only-control');
+            const adminLeaderboard = document.getElementById('admin-leaderboard-card');
+
+            if (currentUser.isAdmin) {
+                adminBadge.style.display = 'inline-block';
+                adminControls.style.display = 'block';
+                vaultControls.style.display = 'block';
+                btnUserAction.style.display = 'none';
+                btnLogoutAdmin.style.display = 'inline-block';
+                adminControlsOnly.forEach(el => el.style.display = 'block');
+                if (adminLeaderboard) adminLeaderboard.style.display = 'block';
+            } else {
+                adminBadge.style.display = 'none';
+                adminControls.style.display = 'none';
+                vaultControls.style.display = 'none';
+                btnUserAction.style.display = 'inline-block';
+                btnLogoutAdmin.style.display = 'none';
+                adminControlsOnly.forEach(el => el.style.display = 'none');
+                if (adminLeaderboard) adminLeaderboard.style.display = 'none';
+            }
+
+            renderVault();
+        }
+
+        // USER AUTH
+        function openAuthModal() { document.getElementById('auth-modal').classList.add('active'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('active'); }
+
+        function saveUserAccount() {
+            const name = document.getElementById('user-input-name').value.trim();
+            if (name) {
+                currentUser.name = name;
+                currentUser.isAdmin = false;
+                localStorage.setItem('mc_username', name);
+                localStorage.setItem('mc_is_admin', 'false');
+                updateUserUI();
+                closeAuthModal();
+            }
+        }
+
+        // ADMIN AUTH & LOGOUT
+        function openAdminModal() { document.getElementById('admin-modal').classList.add('active'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.remove('active'); }
+
+        function verifyAdmin() {
+            const name = document.getElementById('admin-input-name').value.trim();
+            const passkey = document.getElementById('admin-input-passkey').value.trim();
+
+            if (name === 'Király Zsolt' && passkey === 'MC2026!AnimMaster#99') {
+                currentUser.name = 'Király Zsolt';
+                currentUser.isAdmin = true;
+
+                localStorage.setItem('mc_username', 'Király Zsolt');
+                localStorage.setItem('mc_is_admin', 'true');
+
+                updateUserUI();
+                closeAdminModal();
+                renderVotingTab();
+            } else {
+                alert('Invalid Name or Admin Passkey!');
+            }
+        }
+
+        function logoutAdmin() {
+            currentUser.isAdmin = false;
+            localStorage.setItem('mc_is_admin', 'false');
+            updateUserUI();
+            renderVotingTab();
+            alert('Exited Admin Mode.');
+        }
+
+        // NEW TRACK MODAL
+        function openNewTrackModal() { document.getElementById('track-modal').classList.add('active'); }
+        function closeNewTrackModal() { document.getElementById('track-modal').classList.remove('active'); }
+
+        function saveNewTrack() {
+            const title = document.getElementById('new-track-title').value.trim();
+            const desc = document.getElementById('new-track-desc').value.trim();
+            const fileInput = document.getElementById('new-track-file');
+
+            if (title) {
+                document.getElementById('challenge-title').innerText = title;
+                localStorage.setItem('mc_challenge_title', title);
+            }
+
+            if (desc) {
+                document.getElementById('challenge-desc').innerText = desc;
+                localStorage.setItem('mc_challenge_desc', desc);
+            }
+
+            if (fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('monthly-audio').src = e.target.result;
+                    localStorage.setItem('mc_audio_data', e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+
+            closeNewTrackModal();
+            alert('Monthly Challenge Track & Info updated!');
+        }
+
+        // FILE UPLOADS
+        function handleKitUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const btn = document.getElementById('btn-download-kit');
+                btn.href = e.target.result;
+                btn.style.display = 'inline-flex';
+                localStorage.setItem('mc_kit_data', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePdfUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const btn = document.getElementById('btn-download-pdf');
+                btn.href = e.target.result;
+                btn.style.display = 'inline-flex';
+                localStorage.setItem('mc_pdf_data', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadSavedChallengeAssets() {
+            const title = localStorage.getItem('mc_challenge_title');
+            const desc = localStorage.getItem('mc_challenge_desc');
+            const audio = localStorage.getItem('mc_audio_data');
+            const kit = localStorage.getItem('mc_kit_data');
+            const pdf = localStorage.getItem('mc_pdf_data');
+
+            if (title) document.getElementById('challenge-title').innerText = title;
+            if (desc) document.getElementById('challenge-desc').innerText = desc;
+            if (audio) document.getElementById('monthly-audio').src = audio;
+            if (kit) {
+                const btn = document.getElementById('btn-download-kit');
+                btn.href = kit;
+                btn.style.display = 'inline-flex';
+            }
+            if (pdf) {
+                const btn = document.getElementById('btn-download-pdf');
+                btn.href = pdf;
+                btn.style.display = 'inline-flex';
+            }
+        }
+
+        // SUBMISSION MODAL & PROCESS
+        function openSubmitModal() { document.getElementById('submit-modal').classList.add('active'); }
+        function closeSubmitModal() { document.getElementById('submit-modal').classList.remove('active'); }
+
+        function processUserSubmission() {
+            const title = document.getElementById('sub-title').value.trim() || 'Untitled Animation';
+            const desc = document.getElementById('sub-desc').value.trim() || 'No description provided.';
+            const technique = document.getElementById('sub-technique').value;
+            const fileInput = document.getElementById('sub-file');
+
+            if (!fileInput.files[0]) {
+                alert('Please select an .mp4 video file to upload!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const newSub = {
+                    id: Date.now(),
+                    title: title,
+                    desc: desc,
+                    technique: technique,
+                    author: currentUser.name,
+                    videoData: e.target.result,
+                    date: new Date().toLocaleDateString(),
+                    ratings: []
+                };
+
+                submissions.push(newSub);
+                localStorage.setItem('mc_submissions', JSON.stringify(submissions));
+
+                renderSubmissions();
+                closeSubmitModal();
+                alert('Animation submitted successfully!');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function renderSubmissions() {
+            const container = document.getElementById('video-entries');
+            container.innerHTML = '';
+            if (submissions.length === 0) {
+                container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim);">No submissions yet for this month.</p>';
+                return;
+            }
+            submissions.forEach(sub => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${sub.title}</h3>
+                    <p style="font-size:0.8rem; color:var(--gold);">by ${sub.author} • <small style="color:var(--text-dim);">${sub.date}</small></p>
+                    <span class="tag-technique">${sub.technique}</span>
+                    <p style="margin-top:0.5rem;">${sub.desc}</p>
+                    <video controls src="${sub.videoData}"></video>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // VOTING TAB & LEADERBOARD LOGIC
+        function rateSubmission(subId, score) {
+            const sub = submissions.find(s => s.id === subId);
+            if (sub) {
+                if (!sub.ratings) sub.ratings = [];
+                sub.ratings.push(score);
+                localStorage.setItem('mc_submissions', JSON.stringify(submissions));
+                renderVotingTab();
+                alert(`Thank you! You rated "${sub.title}" ${score} stars.`);
+            }
+        }
+
+        function renderVotingTab() {
+            const grid = document.getElementById('voting-grid');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            grid.innerHTML = '';
+            leaderboardBody.innerHTML = '';
+
+            if (submissions.length === 0) {
+                grid.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim);">No animations available for voting yet.</p>';
+                leaderboardBody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim); text-align:center;">No submissions recorded yet.</td></tr>';
+                return;
+            }
+
+            const calculatedSubs = submissions.map(sub => {
+                const ratings = sub.ratings || [];
+                const total = ratings.reduce((a, b) => a + b, 0);
+                const avg = ratings.length > 0 ? (total / ratings.length).toFixed(1) : '0.0';
+                return { ...sub, avgRating: parseFloat(avg), voteCount: ratings.length };
+            });
+
+            calculatedSubs.forEach(sub => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${sub.title}</h3>
+                    <p style="font-size:0.8rem; color:var(--gold);">by ${sub.author}</p>
+                    <span class="tag-technique">${sub.technique}</span>
+                    <p style="margin-top:0.4rem; font-size:0.85rem;">${sub.desc}</p>
+                    <video controls src="${sub.videoData}"></video>
+                    <div style="margin-top:0.8rem; border-top:1px solid var(--border); padding-top:0.6rem;">
+                        <p style="font-size:0.75rem; color:var(--text-dim);">Cast your vote:</p>
+                        <div class="star-rating">
+                            ${[1, 2, 3, 4, 5].map(star => `<span class="star" onclick="rateSubmission(${sub.id}, ${star})">★</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            const sortedSubs = [...calculatedSubs].sort((a, b) => b.avgRating - a.avgRating || b.voteCount - a.voteCount);
+
+            sortedSubs.forEach((sub, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>#${index + 1}</strong></td>
+                    <td><strong>${sub.title}</strong></td>
+                    <td>${sub.author}</td>
+                    <td><span class="tag-technique" style="margin:0;">${sub.technique}</span></td>
+                    <td><strong style="color:var(--gold);">${sub.avgRating} / 5.0</strong></td>
+                    <td>${sub.voteCount} votes</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+
+        // DYNAMIC THEME SWITCHING VIA EVENTS
+        function toggleEvent(eventId) {
+            // Deactivate all other events to maintain 1 active theme at a time
+            [1, 2, 3].forEach(id => {
+                if (id !== eventId) activeEvents[id] = false;
+            });
+
+            activeEvents[eventId] = !activeEvents[eventId];
+            localStorage.setItem('mc_active_events', JSON.stringify(activeEvents));
+            updateEventsUI();
+        }
+
+        function updateEventsUI() {
+            document.body.className = ''; // Reset CSS themes
+
+            [1, 2, 3].forEach(id => {
+                const badge = document.getElementById(`status-event-${id}`);
+                if (activeEvents[id]) {
+                    badge.innerText = "ACTIVE NOW ⚡";
+                    badge.className = "event-status active";
+                    document.body.classList.add(`theme-event-${id}`); // Activate design theme
+                } else {
+                    badge.innerText = "Inactive";
+                    badge.className = "event-status inactive";
+                }
+            });
+        }
+
+        // VAULT CONTROLS & DELETE FUNCTION
+        function handleVaultUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                vaultItems.push({
+                    id: Date.now(),
+                    name: file.name,
+                    fileData: e.target.result,
+                    type: file.type.includes('video') ? 'video' : 'zip'
+                });
+                localStorage.setItem('mc_vault', JSON.stringify(vaultItems));
+                renderVault();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function deleteVaultItem(id) {
+            if (confirm('Delete this file from Vault permanently?')) {
+                vaultItems = vaultItems.filter(item => item.id !== id);
+                localStorage.setItem('mc_vault', JSON.stringify(vaultItems));
+                renderVault();
+            }
+        }
+
+        function renderVault() {
+            const container = document.getElementById('vault-items');
+            container.innerHTML = '';
+            
+            if (vaultItems.length === 0) {
+                container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-dim);">Vault is empty.</p>';
+                return;
+            }
+
+            vaultItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let deleteBtn = currentUser.isAdmin ? `<button class="btn btn-danger" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-top:0.5rem;" onclick="deleteVaultItem(${item.id})">🗑️ Delete</button>` : '';
+
+                if (item.type === 'video') {
+                    card.innerHTML = `<p><strong>${item.name}</strong></p><video controls src="${item.fileData}"></video>${deleteBtn}`;
+                } else {
+                    card.innerHTML = `<p><strong>${item.name}</strong></p><a href="${item.fileData}" download="${item.name}" class="btn btn-outline" style="margin-top:0.5rem;">📥 Download File</a> ${deleteBtn}`;
+                }
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
