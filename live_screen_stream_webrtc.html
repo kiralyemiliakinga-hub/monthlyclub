@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-[#0f0f0f] text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Screen Stream</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PeerJS for WebRTC -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #272727; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f3f; }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-[#0f0f0f] overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="h-14 border-b border-[#272727] px-4 flex items-center justify-between bg-[#0f0f0f] shrink-0">
+        <div class="flex items-center gap-3">
+            <i class="fa-brands fa-youtube text-red-600 text-2xl"></i>
+            <span class="font-bold text-base md:text-lg tracking-tight">Live Screen Stream</span>
+            <span id="liveTag" class="hidden items-center gap-1.5 bg-red-600/20 text-red-500 border border-red-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full ml-2">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> LIVE
+            </span>
+        </div>
+
+        <!-- Share Link Button -->
+        <button id="copyShareBtn" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white px-4 py-2 rounded-full text-xs md:text-sm font-semibold transition shadow-md">
+            <i class="fa-solid fa-link"></i>
+            <span>Copy Link for Viewers</span>
+        </button>
+    </header>
+
+    <!-- Main Content: Video Player + Chat -->
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        
+        <!-- LEFT SIDE: Video Player -->
+        <section class="lg:col-span-8 xl:col-span-9 p-3 lg:p-4 flex flex-col justify-center bg-[#0f0f0f] h-full overflow-y-auto">
+            <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-[#272727] flex items-center justify-center shadow-2xl">
+                
+                <!-- Video Element -->
+                <video id="videoElement" autoplay playsinline class="w-full h-full object-contain"></video>
+
+                <!-- Placeholder Screen -->
+                <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-[#141414] text-center p-6 transition-all duration-300">
+                    <div class="w-16 h-16 rounded-full bg-[#222] flex items-center justify-center mb-4 text-red-500 text-2xl">
+                        <i class="fa-solid fa-desktop" id="placeholderIcon"></i>
+                    </div>
+                    <h2 id="placeholderTitle" class="text-lg md:text-xl font-bold mb-2 text-white">Start Your Stream!</h2>
+                    <p id="placeholderDesc" class="text-gray-400 text-xs md:text-sm max-w-sm mb-6">
+                        Click the button below to share your computer screen. Anyone with the link can watch instantly in real-time.
+                    </p>
+                    <button id="startStreamBtn" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 text-sm">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Start Screen Share</span>
+                    </button>
+                </div>
+
+                <!-- Host-Only Controls Overlay (Top Right) -->
+                <div id="hostOverlayControls" class="hidden absolute top-4 right-4 flex items-center gap-2 backdrop-blur bg-black/70 p-1.5 rounded-full border border-white/10 z-20">
+                    
+                    <!-- Microphone Toggle Button (HOST ONLY) -->
+                    <button id="micBtn" class="flex items-center gap-2 bg-[#222] hover:bg-[#333] text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/10 transition active:scale-95">
+                        <i id="micIcon" class="fa-solid fa-microphone-slash text-red-400"></i>
+                        <span id="micText">Mic OFF</span>
+                    </button>
+
+                    <!-- Stop Stream Button (HOST ONLY) -->
+                    <button id="stopStreamBtn" class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full transition active:scale-95 shadow-md flex items-center gap-1.5">
+                        <i class="fa-solid fa-stop"></i>
+                        <span>End Stream</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stream Info Footer -->
+            <div class="mt-4 flex items-center justify-between px-1">
+                <div>
+                    <h1 class="font-bold text-base md:text-lg text-white" id="streamTitle">Live Screen Stream</h1>
+                    <p class="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
+                        <span id="roleText" class="text-gray-300 font-medium">Home</span>
+                        <span>•</span>
+                        <span id="viewerCount" class="text-red-400 font-medium">1 viewer</span>
+                        <span id="micStatusIndicator" class="hidden text-emerald-400 font-medium items-center gap-1">
+                            • <i class="fa-solid fa-microphone text-[10px]"></i> Mic Live
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDE: Live Chat -->
+        <section class="lg:col-span-4 xl:col-span-3 flex flex-col h-[450px] lg:h-full border-t lg:border-t-0 lg:border-l border-[#272727] bg-[#0f0f0f]">
+            
+            <!-- Chat Header -->
+            <div class="p-3.5 border-b border-[#272727] bg-[#141414] flex items-center justify-between">
+                <span class="font-semibold text-xs uppercase tracking-wider text-gray-300 flex items-center gap-2">
+                    <i class="fa-regular fa-comments text-red-500"></i> Live Chat
+                </span>
+            </div>
+
+            <!-- Chat Messages Area -->
+            <div id="chatBox" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 text-xs">
+                <div class="bg-[#181818] border border-[#272727] rounded-xl p-3 text-gray-400 text-[11px] leading-relaxed">
+                    <span class="text-gray-200 font-semibold block mb-0.5">Welcome to the live chat!</span>
+                    Feel free to say hello. Share the stream link with your friends so they can join and watch.
+                </div>
+            </div>
+
+            <!-- Chat Input Form -->
+            <div class="p-3 border-t border-[#272727] bg-[#141414] flex flex-col gap-2">
+                <!-- Username Input -->
+                <div class="flex items-center gap-2 bg-[#0f0f0f] border border-[#272727] rounded-lg px-2.5 py-1">
+                    <span class="text-gray-500 text-[11px]">Name:</span>
+                    <input type="text" id="usernameInput" value="Viewer" class="bg-transparent text-white text-xs focus:outline-none w-full font-medium">
+                </div>
+
+                <!-- Message Input -->
+                <form id="chatForm" class="flex items-center gap-2">
+                    <input type="text" id="chatInput" placeholder="Say something..." class="flex-1 bg-[#0f0f0f] border border-[#272727] focus:border-red-600 rounded-full py-2 px-3.5 text-xs text-white focus:outline-none transition">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full w-8 h-8 flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2 font-medium">
+        <i class="fa-solid fa-check"></i> Link copied to clipboard! Send it to your viewers.
+    </div>
+
+    <script>
+        // System variables
+        let peer = null;
+        let screenStream = null;
+        let micStream = null;
+        let combinedStream = null;
+        
+        let activeCalls = [];
+        let connections = [];
+        let hostConnection = null;
+        
+        let isHost = false;
+        let isMicEnabled = false;
+        let viewerCount = 1;
+
+        // DOM Elements
+        const videoElement = document.getElementById('videoElement');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+        const startStreamBtn = document.getElementById('startStreamBtn');
+        const stopStreamBtn = document.getElementById('stopStreamBtn');
+        const hostOverlayControls = document.getElementById('hostOverlayControls');
+        const micBtn = document.getElementById('micBtn');
+        const micIcon = document.getElementById('micIcon');
+        const micText = document.getElementById('micText');
+        const micStatusIndicator = document.getElementById('micStatusIndicator');
+        const copyShareBtn = document.getElementById('copyShareBtn');
+        const liveTag = document.getElementById('liveTag');
+        const placeholderTitle = document.getElementById('placeholderTitle');
+        const placeholderDesc = document.getElementById('placeholderDesc');
+        const roleText = document.getElementById('roleText');
+        const viewerCountEl = document.getElementById('viewerCount');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatBox = document.getElementById('chatBox');
+        const usernameInput = document.getElementById('usernameInput');
+        const toast = document.getElementById('toast');
+
+        // Application initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const streamKey = urlParams.get('s');
+
+            if (streamKey) {
+                // VIEWER MODE
+                isHost = false;
+                roleText.textContent = "Viewer Mode";
+                usernameInput.value = "Viewer_" + Math.floor(Math.random() * 100);
+                
+                placeholderTitle.textContent = "Connecting to live stream...";
+                placeholderDesc.textContent = "Please wait, the stream is loading...";
+                startStreamBtn.classList.add('hidden');
+                hostOverlayControls.classList.add('hidden');
+
+                peer = new Peer();
+                peer.on('open', () => {
+                    hostConnection = peer.connect(streamKey);
+                    setupDataConnection(hostConnection);
+                });
+
+                peer.on('call', (call) => {
+                    call.answer();
+                    call.on('stream', (remoteStream) => {
+                        showVideoStream(remoteStream);
+                    });
+                });
+
+            } else {
+                // STREAMER (HOST) MODE
+                isHost = true;
+                roleText.textContent = "Streamer (Host)";
+                usernameInput.value = "Streamer";
+
+                const autoStreamId = 'stream-' + Math.random().toString(36).substring(2, 9);
+                peer = new Peer(autoStreamId);
+
+                peer.on('connection', (conn) => {
+                    setupDataConnection(conn);
+                });
+            }
+
+            peer.on('error', (err) => {
+                console.error("Peer error:", err);
+            });
+        });
+
+        // Start Screen Share
+        startStreamBtn.addEventListener('click', async () => {
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { cursor: "always", frameRate: { max: 30 } },
+                    audio: true
+                });
+
+                updateCombinedStream();
+                showVideoStream(combinedStream);
+
+                hostOverlayControls.classList.remove('hidden');
+                liveTag.classList.remove('hidden');
+                liveTag.classList.add('flex');
+
+                screenStream.getVideoTracks()[0].onended = () => {
+                    stopScreenShare();
+                };
+
+                // Broadcast stream to existing viewers
+                broadcastStreamToViewers();
+
+                addSystemMessage("Screen sharing started!");
+
+            } catch (err) {
+                console.error("Failed to share screen:", err);
+            }
+        });
+
+        // Toggle Microphone (HOST ONLY)
+        micBtn.addEventListener('click', async () => {
+            if (!isHost) return;
+
+            if (!isMicEnabled) {
+                try {
+                    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    isMicEnabled = true;
+
+                    micBtn.classList.remove('bg-[#222]', 'text-gray-300');
+                    micBtn.classList.add('bg-emerald-600', 'text-white');
+                    micIcon.className = 'fa-solid fa-microphone text-white';
+                    micText.textContent = 'Mic ON';
+                    micStatusIndicator.classList.remove('hidden');
+                    micStatusIndicator.classList.add('flex');
+
+                    updateCombinedStream();
+                    broadcastStreamToViewers();
+                    addSystemMessage("Microphone unmuted.");
+
+                } catch (err) {
+                    console.error("Microphone access denied:", err);
+                    addSystemMessage("Failed to access microphone.");
+                }
+            } else {
+                stopMicrophone();
+                updateCombinedStream();
+                broadcastStreamToViewers();
+                addSystemMessage("Microphone muted.");
+            }
+        });
+
+        function stopMicrophone() {
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+                micStream = null;
+            }
+            isMicEnabled = false;
+
+            micBtn.classList.remove('bg-emerald-600', 'text-white');
+            micBtn.classList.add('bg-[#222]', 'text-gray-300');
+            micIcon.className = 'fa-solid fa-microphone-slash text-red-400';
+            micText.textContent = 'Mic OFF';
+            micStatusIndicator.classList.add('hidden');
+            micStatusIndicator.classList.remove('flex');
+        }
+
+        // Combine video and mic audio tracks
+        function updateCombinedStream() {
+            const tracks = [];
+
+            if (screenStream) {
+                screenStream.getVideoTracks().forEach(t => tracks.push(t));
+                screenStream.getAudioTracks().forEach(t => tracks.push(t));
+            }
+
+            if (micStream && isMicEnabled) {
+                micStream.getAudioTracks().forEach(t => tracks.push(t));
+            }
+
+            combinedStream = new MediaStream(tracks);
+        }
+
+        // Re-broadcast stream to connected viewers
+        function broadcastStreamToViewers() {
+            if (!isHost || !combinedStream) return;
+
+            activeCalls.forEach(call => call.close());
+            activeCalls = [];
+
+            connections.forEach(conn => {
+                if (conn.open) {
+                    const call = peer.call(conn.peer, combinedStream);
+                    activeCalls.push(call);
+                }
+            });
+        }
+
+        // Stop Entire Stream
+        stopStreamBtn.addEventListener('click', stopScreenShare);
+
+        function stopScreenShare() {
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+            stopMicrophone();
+
+            videoElement.srcObject = null;
+            videoPlaceholder.classList.remove('hidden');
+            hostOverlayControls.classList.add('hidden');
+            liveTag.classList.add('hidden');
+            liveTag.classList.remove('flex');
+
+            activeCalls.forEach(call => call.close());
+            activeCalls = [];
+
+            addSystemMessage("Stream ended.");
+        }
+
+        function showVideoStream(stream) {
+            videoElement.srcObject = stream;
+            videoPlaceholder.classList.add('hidden');
+            videoElement.play().catch(e => console.log(e));
+        }
+
+        function setupDataConnection(conn) {
+            conn.on('open', () => {
+                if (!connections.includes(conn)) {
+                    connections.push(conn);
+                }
+                updateViewerCount();
+
+                if (isHost && combinedStream) {
+                    const call = peer.call(conn.peer, combinedStream);
+                    activeCalls.push(call);
+                }
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'chat') {
+                    appendChatMessage(data.sender, data.text, data.time, false);
+                    if (isHost) {
+                        connections.forEach(c => {
+                            if (c.open && c.peer !== conn.peer) c.send(data);
+                        });
+                    }
+                }
+            });
+
+            conn.on('close', () => {
+                connections = connections.filter(c => c.peer !== conn.peer);
+                updateViewerCount();
+            });
+        }
+
+        function updateViewerCount() {
+            viewerCount = connections.length + 1;
+            viewerCountEl.textContent = `${viewerCount} viewer${viewerCount > 1 ? 's' : ''}`;
+        }
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            const sender = usernameInput.value.trim() || 'Anonymous';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const msgData = { type: 'chat', sender, text, time };
+
+            appendChatMessage(sender, text, time, true);
+
+            if (isHost) {
+                connections.forEach(c => { if (c.open) c.send(msgData); });
+            } else if (hostConnection && hostConnection.open) {
+                hostConnection.send(msgData);
+            }
+
+            chatInput.value = '';
+        });
+
+        function appendChatMessage(sender, text, time, isMe) {
+            const msgEl = document.createElement('div');
+            msgEl.className = 'flex flex-col bg-[#141414] p-2.5 rounded-xl border border-[#272727]';
+
+            msgEl.innerHTML = `
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-semibold ${isMe ? 'text-red-400' : 'text-gray-300'}">${escapeHtml(sender)}</span>
+                    <span class="text-[10px] text-gray-500">${time}</span>
+                </div>
+                <p class="text-gray-200 text-xs break-words">${escapeHtml(text)}</p>
+            `;
+
+            chatBox.appendChild(msgEl);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const msgEl = document.createElement('div');
+            msgEl.className = 'text-[10px] text-gray-500 italic text-center my-1';
+            msgEl.textContent = text;
+            chatBox.appendChild(msgEl);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        copyShareBtn.addEventListener('click', () => {
+            let shareUrl = window.location.href;
+
+            if (isHost && peer && peer.id) {
+                const baseUrl = window.location.origin + window.location.pathname;
+                shareUrl = `${baseUrl}?s=${peer.id}`;
+            }
+
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast();
+            }).catch(() => {
+                const tempInput = document.createElement('input');
+                tempInput.value = shareUrl;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast();
+            });
+        });
+
+        function showToast() {
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
